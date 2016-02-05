@@ -11,3 +11,13 @@ script:
 
 after_success:
 - coveralls
+
+deploy:
+  provider: pypi
+  user: jonparrott
+  password:
+    secure: kFVzMJP6TPZImLrLPiSQKxV+5z6fPn7Uwwq+wTeH0unof6ODvY/aoNN1hkL65WwlPOn55eeBzIYNjXWt/rgYrZ+kWEdyfF8iC5gW5WiwanABzxu/b8E0lmJhjtQXm2Bf6q5GUlGFIAQmuLwA8KLY+CEHTArUvhkeI1hxSSwJkRd+TvvjyIUlSlSkR7+Zq6TVTGB1aUwV5cq0sKihEwCkLGxv4z7tOQvce+MioJ9AMzS1FsuV2cKfYfrolS7ZZoG4NajZFL25xo0n7kFddU6VLAFSw2JLqBiXaK69boMXW6xKHOe/1R38wAc7pbZispT84Fukr1jwgI5JgnnIBP4xvlkXa3o71Lsg686FjVRjSE9KJAQB/PdELteu3LL8jeuhvfrMixqQuiBEQIHwQkkySUBw2+puLddj7RAuc5d3icWxq+ZYMKh9SC62tqXsRHyyVn1gsU0QsSTd4fTw2wxIAsuRxHbjRuI44xsMVLSgtUmub2636+MpEPgMIMzMcSBkxiYGk6V1fnX3nztiDEqjYXdLeIPanaTnMxFyJx54V8fhKPcI+4AtiWd5LZpJQrp5OBcozYQi54M8cjMITcDMgkWVFbkIUcE8zTb6+K2t6B2DjHG6lzB6CbViKLY9UoTVP6ptTNU9Ys515KoxzzIsFb7I3/9/72K/fBBbAJ9EoQ4=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: GoogleCloudPlatform/httplib2shim
