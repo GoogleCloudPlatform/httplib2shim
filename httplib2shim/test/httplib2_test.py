@@ -25,13 +25,6 @@ This is the httplib2 test suite. It has been adapted to use the shim and to
 run on both python 2 and python 3.
 """
 
-__author__ = "Joe Gregorio (joe@bitworking.org)"
-__copyright__ = "Copyright 2006, Joe Gregorio"
-__contributors__ = ["Mark Pilgrim"]
-__license__ = "MIT"
-__history__ = """ """
-__version__ = "0.2 ($Rev: 118 $)"
-
 import io
 import os
 import pickle
@@ -44,8 +37,17 @@ import unittest
 
 import httplib2
 import httplib2shim
-from six.moves.urllib import parse as urllib_parse
 import six
+from six.moves.urllib import parse as urllib_parse
+
+
+__author__ = "Joe Gregorio (joe@bitworking.org)"
+__copyright__ = "Copyright 2006, Joe Gregorio"
+__contributors__ = ["Mark Pilgrim"]
+__license__ = "MIT"
+__history__ = """ """
+__version__ = "0.2 ($Rev: 118 $)"
+
 
 httplib2shim.patch()
 
@@ -58,10 +60,12 @@ class CredentialsTest(unittest.TestCase):
     def test(self):
         c = httplib2.Credentials()
         c.add("joe", "password")
-        self.assertEqual(("joe", "password"), list(c.iter("bitworking.org"))[0])
+        self.assertEqual(
+            ("joe", "password"), list(c.iter("bitworking.org"))[0])
         self.assertEqual(("joe", "password"), list(c.iter(""))[0])
         c.add("fred", "password2", "wellformedweb.org")
-        self.assertEqual(("joe", "password"), list(c.iter("bitworking.org"))[0])
+        self.assertEqual(
+            ("joe", "password"), list(c.iter("bitworking.org"))[0])
         self.assertEqual(1, len(list(c.iter("bitworking.org"))))
         self.assertEqual(2, len(list(c.iter("wellformedweb.org"))))
         self.assertTrue(
@@ -285,8 +289,8 @@ class HttpTest(unittest.TestCase):
     def testHeadRead(self):
         # Test that we don't try to read the response of a HEAD request
         # since httplib blocks response.read() for HEAD requests.
-        # Oddly enough this doesn't appear as a problem when doing HEAD requests
-        # against Apache servers.
+        # Oddly enough this doesn't appear as a problem when doing HEAD
+        # requests against Apache servers.
         uri = "http://www.google.com/"
         (response, content) = self.http.request(uri, "HEAD")
         self.assertEqual(response.status, 200)
@@ -531,7 +535,8 @@ class HttpTest(unittest.TestCase):
             self.assertEqual(
                 http.connections["https:bitworking.org"].key_file, "akeyfile")
             self.assertEqual(
-                http.connections["https:bitworking.org"].cert_file, "acertfile")
+                http.connections[
+                    "https:bitworking.org"].cert_file, "acertfile")
         except IOError:
             # Skip on 3.2
             pass
@@ -1162,7 +1167,8 @@ class HttpTest(unittest.TestCase):
         self.http.add_credentials('joe', 'password')
         (response, content) = self.http.request(
             uri, "GET", headers={"cache-control": "no-cache"})
-        info = httplib2._parse_www_authenticate(response, 'authentication-info')
+        info = httplib2._parse_www_authenticate(
+            response, 'authentication-info')
         self.assertEqual(response.status, 200)
         (response, content) = self.http.request(
             uri, "GET", headers={"cache-control": "no-cache"})
@@ -1424,7 +1430,8 @@ class HttpPrivateTest(unittest.TestCase):
     def testExpirationModelDateOnly(self):
         now = time.time()
         response_headers = {
-            'date': time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(now+3)),
+            'date': time.strftime(
+                "%a, %d %b %Y %H:%M:%S GMT", time.gmtime(now+3)),
         }
         request_headers = {}
         self.assertEqual(
@@ -1622,7 +1629,8 @@ class HttpPrivateTest(unittest.TestCase):
             'www-authenticate':
                 ('Digest realm="test-real.m@host.com", '
                  'qop \t=\t"\tauth,auth-int", nonce="(*)&^&$%#", '
-                 'opaque="5ccc069c403ebaf9f0171e9517f40e41", Basic REAlm="me", '
+                 'opaque="5ccc069c403ebaf9f0171e9517f40e41", '
+                 'Basic REAlm="me", '
                  'WSSE realm="foo", profile="UsernameToken"')})
         digest = res['digest']
         self.assertEqual('test-real.m@host.com', digest['realm'])
@@ -1633,8 +1641,8 @@ class HttpPrivateTest(unittest.TestCase):
         res = httplib2._parse_www_authenticate({
             'www-authenticate':
                 ('Digest realm="myrealm", '
-                 'nonce="Ygk86AsKBAA=3516200d37f9a3230352fde99977bd6d472d4306",'
-                 'algorithm=MD5, qop="auth", stale=true')})
+                 'nonce="Ygk86AsKBAA=3516200d37f9a3230352fde99977bd6d472d4306"'
+                 ', algorithm=MD5, qop="auth", stale=true')})
         digest = res['digest']
         self.assertEqual('myrealm', digest['realm'])
 
@@ -1656,8 +1664,8 @@ class HttpPrivateTest(unittest.TestCase):
         response = {
             'www-authenticate': (
                 'Digest realm="myrealm", '
-                'nonce="Ygk86AsKBAA=3516200d37f9a3230352fde99977bd6d472d4306", '
-                'algorithm=MD5, qop="auth"')
+                'nonce="Ygk86AsKBAA=3516200d37f9a3230352fde99977bd6d472d4306",'
+                ' algorithm=MD5, qop="auth"')
         }
         content = b""
 
@@ -1683,8 +1691,8 @@ class HttpPrivateTest(unittest.TestCase):
         response = {
             'www-authenticate':
                 ('Digest realm="myrealm", '
-                 'nonce="Ygk86AsKBAA=3516200d37f9a3230352fde99977bd6d472d4306",'
-                 ' algorithm=MD5, qop="auth", opaque="atestopaque"')
+                 'nonce="Ygk86AsKBAA=3516200d37f9a3230352fde99977bd6d472d4306"'
+                 ', algorithm=MD5, qop="auth", opaque="atestopaque"')
         }
         content = ""
 

@@ -33,11 +33,16 @@ import urllib3
 def _default_make_pool(http):
     """Creates a urllib3.PoolManager object that has SSL verification enabled
     and uses the certifi certificates."""
-    ca_certs = _certifi_where_for_ssl_version()
-    cert_reqs = 'CERT_REQUIRED' if ca_certs else None
+
+    if not http.ca_certs:
+        http.ca_certs = _certifi_where_for_ssl_version()
+
+    ssl_disabled = http.disable_ssl_certificate_validation
+
+    cert_reqs = 'CERT_REQUIRED' if http.ca_certs and not ssl_disabled else None
 
     return urllib3.PoolManager(
-        ca_certs=ca_certs,
+        ca_certs=http.ca_certs,
         cert_reqs=cert_reqs,
     )
 
@@ -69,8 +74,23 @@ class Http(httplib2.Http):
     """
     _make_pool = _default_make_pool
 
-    def __init__(self, pool=None, *args, **kwargs):
-        super(Http, self).__init__(*args, **kwargs)
+    def __init__(self, cache=None, timeout=None,
+                 proxy_info=httplib2.proxy_info_from_environment,
+                 ca_certs=None, disable_ssl_certificate_validation=False,
+                 pool=None):
+        disable_ssl = disable_ssl_certificate_validation
+
+        super(Http, self).__init__(
+            cache=cache,
+            timeout=timeout,
+            proxy_info=proxy_info,
+            ca_certs=ca_certs,
+            disable_ssl_certificate_validation=disable_ssl)
+
+        if proxy_info:
+            warnings.warn(
+                'httplib2shim does not use proxy_info, specify a custom pool '
+                'instead.')
 
         if not pool:
             pool = self._make_pool()
@@ -108,6 +128,7 @@ class Http(httplib2.Http):
 
             response = _map_response(urllib3_response, decode=decode)
             content = urllib3_response.data
+
         except Exception as e:
             raise _map_exception(e)
 
