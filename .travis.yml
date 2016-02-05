@@ -1,0 +1,13 @@
+language: python
+sudo: false
+
+install:
+- pip install tox coveralls
+
+script:
+- tox -e lint
+- tox -e py27
+- tox -e py34
+
+after_success:
+- coveralls

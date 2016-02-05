@@ -1,0 +1,6 @@
+urllib3[secure]
+httplib2
+certifi
+nose
+coverage
+six
