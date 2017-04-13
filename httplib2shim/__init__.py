@@ -42,11 +42,18 @@ def _default_make_pool(http, proxy_info):
     cert_reqs = 'CERT_REQUIRED' if http.ca_certs and not ssl_disabled else None
 
     if proxy_info:
+        if proxy_info.proxy_user and proxy_info.proxy_pass:
+            proxy_url = 'http://{}:{}@{}:{}/'.format(
+                proxy_info.proxy_user, proxy_info.proxy_pass,
+                proxy_info.proxy_host, proxy_info.proxy_port,
+            )
+        else:
+            proxy_url = 'http://{}:{}/'.format(
+                proxy_info.proxy_host, proxy_info.proxy_port,
+            )
+
         return urllib3.ProxyManager(
-            proxy_url='http://%s:%s/' % (
-                proxy_info.proxy_host,
-                proxy_info.proxy_port
-            ),
+            proxy_url=proxy_url,
             ca_certs=http.ca_certs,
             cert_reqs=cert_reqs,
         )
@@ -118,7 +125,13 @@ class Http(httplib2.Http):
             scheme, host, conn.port, request_uri)
 
         decode = True if method != 'HEAD' else False
-
+        if isinstance(self.pool, urllib3.ProxyManager):
+            if self.pool.proxy.auth:
+                self.pool.proxy_headers.update(
+                    urllib3.util.request.make_headers(
+                        proxy_basic_auth=self.pool.proxy.auth
+                    )
+                )
         try:
             urllib3_response = self.pool.request(
                 method,
