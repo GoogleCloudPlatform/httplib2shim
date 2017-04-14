@@ -47,13 +47,20 @@ def _default_make_pool(http, proxy_info):
                 proxy_info.proxy_user, proxy_info.proxy_pass,
                 proxy_info.proxy_host, proxy_info.proxy_port,
             )
+            proxy_headers = urllib3.util.request.make_headers(
+                proxy_basic_auth='{}:{}'.format(
+                    proxy_info.proxy_user, proxy_info.proxy_pass,
+                )
+            )
         else:
             proxy_url = 'http://{}:{}/'.format(
                 proxy_info.proxy_host, proxy_info.proxy_port,
             )
+            proxy_headers = {}
 
         return urllib3.ProxyManager(
             proxy_url=proxy_url,
+            proxy_headers=proxy_headers,
             ca_certs=http.ca_certs,
             cert_reqs=cert_reqs,
         )
@@ -125,13 +132,7 @@ class Http(httplib2.Http):
             scheme, host, conn.port, request_uri)
 
         decode = True if method != 'HEAD' else False
-        if isinstance(self.pool, urllib3.ProxyManager):
-            if self.pool.proxy.auth:
-                self.pool.proxy_headers.update(
-                    urllib3.util.request.make_headers(
-                        proxy_basic_auth=self.pool.proxy.auth
-                    )
-                )
+
         try:
             urllib3_response = self.pool.request(
                 method,
