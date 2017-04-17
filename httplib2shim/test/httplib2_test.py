@@ -1315,6 +1315,7 @@ class HttpTest(unittest.TestCase):
     #     pickled_http = pickle.dumps(self.http)
     #     self.assertFalse(b"S'request'" in pickled_http)
 
+
 try:
     import memcache
 
