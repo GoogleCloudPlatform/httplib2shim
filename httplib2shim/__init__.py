@@ -163,7 +163,7 @@ class Http(httplib2.Http):
 
     def __setstate__(self, dict):
         super(Http, self).__setstate__(dict)
-        self.pool = self._make_pool()
+        self.pool = self._make_pool(proxy_info=self.proxy_info())
 
 
 def _is_ipv6(addr):

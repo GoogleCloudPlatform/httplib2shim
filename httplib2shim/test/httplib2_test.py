@@ -52,7 +52,8 @@ __version__ = "0.2 ($Rev: 118 $)"
 httplib2shim.patch()
 
 # The test resources base uri
-base = 'http://bitworking.org/projects/httplib2/test/'
+base = os.environ.get('TEST_SERVER_URL')
+no_base_reason = 'No TEST_SERVER_URL specified'
 cacheDirName = ".cache"
 
 
@@ -262,6 +263,7 @@ class HttpTest(unittest.TestCase):
         self.assertTrue(b"Connection refused" in content)
         self.assertEqual(response.status, 400)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetIRI(self):
         if sys.version_info >= (2, 3):
             uri = urllib_parse.urljoin(
@@ -273,12 +275,14 @@ class HttpTest(unittest.TestCase):
             print(d['QUERY_STRING'])
             self.assertTrue(d['QUERY_STRING'].find('%D0%82') > 0)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetIsDefaultMethod(self):
         # Test that GET is the default method
         uri = urllib_parse.urljoin(base, "methods/method_reflector.cgi")
         (response, content) = self.http.request(uri)
         self.assertEqual(response['x-method'], "GET")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testDifferentMethods(self):
         # Test that all methods can be used
         uri = urllib_parse.urljoin(base, "methods/method_reflector.cgi")
@@ -296,6 +300,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(content, b"")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetNoCache(self):
         # Test that can do a GET w/o the cache turned on.
         http = httplib2.Http()
@@ -304,6 +309,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.previous, None)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetOnlyIfCachedCacheHit(self):
         # Test that can do a GET with cache and 'only-if-cached'
         uri = urllib_parse.urljoin(base, "304/test_etag.txt")
@@ -313,6 +319,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.fromcache, True)
         self.assertEqual(response.status, 200)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetOnlyIfCachedCacheMiss(self):
         # Test that can do a GET with no cache with 'only-if-cached'
         uri = urllib_parse.urljoin(base, "304/test_etag.txt")
@@ -321,6 +328,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.fromcache, False)
         self.assertEqual(response.status, 504)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetOnlyIfCachedNoCacheAtAll(self):
         # Test that can do a GET with no cache with 'only-if-cached'
         # Of course, there might be an intermediary beyond us
@@ -333,6 +341,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.fromcache, False)
         self.assertEqual(response.status, 504)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testUserAgent(self):
         # Test that we provide a default user-agent
         uri = urllib_parse.urljoin(base, "user-agent/test.cgi")
@@ -340,6 +349,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertTrue(content.startswith(b"Python-httplib2/"))
 
+    @unittest.skipIf(not base, no_base_reason)
     def testUserAgentNonDefault(self):
         # Test that the default user-agent can be over-ridden
 
@@ -349,6 +359,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertTrue(content.startswith(b"fred/1.0"))
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet300WithLocation(self):
         # Test the we automatically follow 300 redirects if a
         # Location: header is provided
@@ -366,6 +377,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.previous.status, 300)
         self.assertEqual(response.previous.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet300WithLocationNoRedirect(self):
         # Test the we automatically follow 300 redirects if a
         # Location: header is provided
@@ -374,6 +386,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.status, 300)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet300WithoutLocation(self):
         # Not giving a Location: header in a 300 response is acceptable
         # In which case we just return the 300 response
@@ -383,6 +396,7 @@ class HttpTest(unittest.TestCase):
         self.assertTrue(response['content-type'].startswith("text/html"))
         self.assertEqual(response.previous, None)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet301(self):
         # Test that we automatically follow 301 redirects
         # and that we cache the 301 response
@@ -403,6 +417,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.previous.status, 301)
         self.assertEqual(response.previous.fromcache, True)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testHead301(self):
         # Test that we automatically follow 301 redirects
         uri = urllib_parse.urljoin(base, "301/onestep.asis")
@@ -411,6 +426,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.previous.status, 301)
         self.assertEqual(response.previous.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet301NoRedirect(self):
         # Test that we automatically follow 301 redirects
         # and that we cache the 301 response
@@ -420,6 +436,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.status, 301)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet302(self):
         # Test that we automatically follow 302 redirects
         # and that we DO NOT cache the 302 response
@@ -451,6 +468,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.previous.status, 302)
         self.assertEqual(response.previous.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet302RedirectionLimit(self):
         # Test that we can set a lower redirection limit
         # and that we raise an exception when we exceed
@@ -476,6 +494,7 @@ class HttpTest(unittest.TestCase):
         self.assertTrue(content.startswith(b"<html>"))
         self.assertTrue(response.previous is not None)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet302NoLocation(self):
         # Test that we throw an exception when we get
         # a 302 with no Location: header.
@@ -584,6 +603,7 @@ class HttpTest(unittest.TestCase):
     def testSniHostnameValidation(self):
         self.http.request("https://google.com/", method="GET")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet303(self):
         # Do a follow-up GET on a Location: header
         # returned from a POST that gave a 303.
@@ -593,6 +613,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(content, b"This is the final destination.\n")
         self.assertEqual(response.previous.status, 303)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet303NoRedirect(self):
         # Do a follow-up GET on a Location: header
         # returned from a POST that gave a 303.
@@ -601,6 +622,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "POST", " ")
         self.assertEqual(response.status, 303)
 
+    @unittest.skipIf(not base, no_base_reason)
     def test303ForDifferentMethods(self):
         # Test that all methods can be used
         uri = urllib_parse.urljoin(base, "303/redirect-to-reflector.cgi")
@@ -611,6 +633,7 @@ class HttpTest(unittest.TestCase):
             (response, content) = self.http.request(uri, method, body=b" ")
             self.assertEqual(response['x-method'], method_on_303)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet304(self):
         # Test that we use ETags properly to validate our cache
         uri = urllib_parse.urljoin(base, "304/test_etag.txt")
@@ -647,6 +670,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 206)
         self.assertEqual(response.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetIgnoreEtag(self):
         # Test that we can forcibly ignore ETags
         uri = urllib_parse.urljoin(base, "reflector/reflector.cgi")
@@ -666,6 +690,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.fromcache, False)
         self.assertFalse('HTTP_IF_NONE_MATCH' in d)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testOverrideEtag(self):
         # Test that we can forcibly ignore ETags
         uri = urllib_parse.urljoin(base, "reflector/reflector.cgi")
@@ -690,6 +715,7 @@ class HttpTest(unittest.TestCase):
         self.assertTrue('HTTP_IF_NONE_MATCH' in d)
         self.assertEqual(d['HTTP_IF_NONE_MATCH'], "fred")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet304LastModified(self):
         # Test that we can still handle a 304
         # by only using the last-modified cache validator.
@@ -703,6 +729,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.fromcache, True)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet307(self):
         # Test that we do follow 307 redirects but
         # do not cache the 307
@@ -720,12 +747,14 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.previous.status, 307)
         self.assertEqual(response.previous.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGet410(self):
         # Test that we pass 410's through
         uri = urllib_parse.urljoin(base, "410/410.asis")
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.status, 410)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testVaryHeaderSimple(self):
         """
         RFC 2616 13.6
@@ -764,6 +793,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(
             response.fromcache, False, msg="Should not be from cache")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testVaryHeaderDouble(self):
         uri = urllib_parse.urljoin(base, "vary/accept-double.asis")
         (response, content) = self.http.request(uri, "GET", headers={
@@ -791,6 +821,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(
             response.fromcache, False, msg="Should not be from cache")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testVaryUnusedHeader(self):
         # A header's value is not considered to vary if it's not used at all.
         uri = urllib_parse.urljoin(base, "vary/unused-header.asis")
@@ -804,6 +835,7 @@ class HttpTest(unittest.TestCase):
             uri, "GET", headers={'Accept': 'text/plain'})
         self.assertEqual(response.fromcache, True, msg="Should be from cache")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testHeadGZip(self):
         # Test that we don't try to decompress a HEAD response
         uri = urllib_parse.urljoin(base, "gzip/final-destination.txt")
@@ -812,6 +844,7 @@ class HttpTest(unittest.TestCase):
         self.assertNotEqual(int(response['content-length']), 0)
         self.assertEqual(content, b"")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetGZip(self):
         # Test that we support gzip compression
         uri = urllib_parse.urljoin(base, "gzip/final-destination.txt")
@@ -824,6 +857,7 @@ class HttpTest(unittest.TestCase):
             len(b"This is the final destination.\n"))
         self.assertEqual(content, b"This is the final destination.\n")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testPostAndGZipResponse(self):
         uri = urllib_parse.urljoin(base, "gzip/post.cgi")
         (response, content) = self.http.request(uri, "POST", body=" ")
@@ -831,6 +865,7 @@ class HttpTest(unittest.TestCase):
         self.assertFalse('content-encoding' in response)
         self.assertTrue('-content-encoding' in response)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetGZipFailure(self):
         # Test that we raise a good exception when the gzip fails
         self.http.force_exception_to_status_code = False
@@ -850,6 +885,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 500)
         self.assertTrue(response.reason.startswith("Content purported"))
 
+    @unittest.skipIf(not base, no_base_reason)
     def testIndividualTimeout(self):
         uri = urllib_parse.urljoin(base, "timeout/timeout.cgi")
         http = httplib2.Http(timeout=1)
@@ -860,6 +896,7 @@ class HttpTest(unittest.TestCase):
         self.assertTrue(response.reason.startswith("Request Timeout"))
         self.assertTrue(content.startswith(b"Request Timeout"))
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetDeflate(self):
         # Test that we support deflate compression
         uri = urllib_parse.urljoin(base, "deflate/deflated.asis")
@@ -871,6 +908,7 @@ class HttpTest(unittest.TestCase):
             len("This is the final destination."))
         self.assertEqual(content, b"This is the final destination.")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetDeflateFailure(self):
         # Test that we raise a good exception when the deflate fails
         self.http.force_exception_to_status_code = False
@@ -891,6 +929,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 500)
         self.assertTrue(response.reason.startswith("Content purported"))
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetDuplicateHeaders(self):
         # Test that duplicate headers get concatenated via ','
         uri = urllib_parse.urljoin(base, "duplicate-headers/multilink.asis")
@@ -901,6 +940,7 @@ class HttpTest(unittest.TestCase):
             response['link'].split(",")[0],
             '<http://bitworking.org>; rel="home"; title="BitWorking"')
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetCacheControlNoCache(self):
         # Test Cache-Control: no-cache on requests
         uri = urllib_parse.urljoin(base, "304/test_etag.txt")
@@ -919,6 +959,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetCacheControlPragmaNoCache(self):
         # Test Pragma: no-cache on requests
         uri = urllib_parse.urljoin(base, "304/test_etag.txt")
@@ -937,6 +978,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetCacheControlNoStoreRequest(self):
         # A no-store request means that the response should not be stored.
         uri = urllib_parse.urljoin(base, "304/test_etag.txt")
@@ -951,6 +993,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetCacheControlNoStoreResponse(self):
         # A no-store response means that the response should not be stored.
         uri = urllib_parse.urljoin(base, "no-store/no-store.asis")
@@ -963,6 +1006,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testGetCacheControlNoCacheNoStoreRequest(self):
         # Test that a no-store, no-cache clears the entry from the cache
         # even if it was cached previously.
@@ -978,6 +1022,7 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testUpdateInvalidatesCache(self):
         # Test that calling PUT or DELETE on a
         # URI that is cache invalidates that cache.
@@ -992,6 +1037,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.fromcache, False)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testUpdateUsesCachedETag(self):
         # Test that we natively support http://www.w3.org/1999/04/Editing/
         uri = urllib_parse.urljoin(base, "conditional-updates/test.cgi")
@@ -1024,6 +1070,7 @@ class HttpTest(unittest.TestCase):
     #     (response, content) = self.http.request(uri, "PATCH", body="foo")
     #     self.assertEqual(response.status, 412)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testUpdateUsesCachedETagAndOCMethod(self):
         # Test that we natively support http://www.w3.org/1999/04/Editing/
         uri = urllib_parse.urljoin(base, "conditional-updates/test.cgi")
@@ -1038,6 +1085,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "DELETE")
         self.assertEqual(response.status, 200)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testUpdateUsesCachedETagOverridden(self):
         # Test that we natively support http://www.w3.org/1999/04/Editing/
         uri = urllib_parse.urljoin(base, "conditional-updates/test.cgi")
@@ -1052,6 +1100,7 @@ class HttpTest(unittest.TestCase):
             uri, "PUT", body="foo", headers={'if-match': 'fred'})
         self.assertEqual(response.status, 412)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testBasicAuth(self):
         # Test Basic Authentication
         uri = urllib_parse.urljoin(base, "basic/file.txt")
@@ -1070,6 +1119,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.status, 200)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testBasicAuthWithDomain(self):
         # Test Basic Authentication
         uri = urllib_parse.urljoin(base, "basic/file.txt")
@@ -1097,6 +1147,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.status, 200)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testBasicAuthTwoDifferentCredentials(self):
         # Test Basic Authentication with multiple sets of credentials
         uri = urllib_parse.urljoin(base, "basic2/file.txt")
@@ -1115,6 +1166,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.status, 200)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testBasicAuthNested(self):
         # Test Basic Authentication with resources
         # that are nested
@@ -1147,6 +1199,7 @@ class HttpTest(unittest.TestCase):
         (response, content) = self.http.request(uri, "GET")
         self.assertEqual(response.status, 200)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testDigestAuth(self):
         # Test that we support Digest Authentication
         uri = urllib_parse.urljoin(base, "digest/")
@@ -1160,6 +1213,7 @@ class HttpTest(unittest.TestCase):
         uri = urllib_parse.urljoin(base, "digest/file.txt")
         (response, content) = self.http.request(uri, "GET")
 
+    @unittest.skipIf(not base, no_base_reason)
     def testDigestAuthNextNonceAndNC(self):
         # Test that if the server sets nextnonce that we reset
         # the nonce count back to 1
@@ -1179,6 +1233,7 @@ class HttpTest(unittest.TestCase):
         if 'nextnonce' in info:
             self.assertEqual(info2['nc'], 1)
 
+    @unittest.skipIf(not base, no_base_reason)
     def testDigestAuthStale(self):
         # Test that we can handle a nonce becoming stale
         uri = urllib_parse.urljoin(base, "digest-expire/file.txt")
@@ -1203,6 +1258,7 @@ class HttpTest(unittest.TestCase):
             [tuple(x.split("=", 1))
              for x in content.decode('utf-8').strip().split("\n")])
 
+    @unittest.skipIf(not base, no_base_reason)
     def testReflector(self):
         uri = urllib_parse.urljoin(base, "reflector/reflector.cgi")
         (response, content) = self.http.request(uri, "GET")
