@@ -39,6 +39,7 @@ import httplib2
 import httplib2shim
 import six
 from six.moves.urllib import parse as urllib_parse
+import urllib3
 
 
 __author__ = "Joe Gregorio (joe@bitworking.org)"
@@ -1880,3 +1881,20 @@ class TestProxyInfo(unittest.TestCase):
         os.environ.clear()
         pi = httplib2.proxy_info_from_environment()
         self.assertEqual(pi, None)
+
+
+class HttpShimProxyPoolTest(unittest.TestCase):
+    """Test shim pool creatinou for various proxy settings"""
+
+    def test_none(self):
+        http = httplib2.Http(proxy_info=None)
+        self.assertIsInstance(http.pool, urllib3.PoolManager)
+        http = httplib2.Http(proxy_info=lambda: None)
+        self.assertIsInstance(http.pool, urllib3.PoolManager)
+
+    def test_instance_and_callable(self):
+        proxy_info = httplib2.proxy_info_from_url('http://myproxy.example.com')
+        http = httplib2.Http(proxy_info=proxy_info)
+        self.assertIsInstance(http.pool, urllib3.ProxyManager)
+        http = httplib2.Http(proxy_info=lambda: proxy_info)
+        self.assertIsInstance(http.pool, urllib3.ProxyManager)
