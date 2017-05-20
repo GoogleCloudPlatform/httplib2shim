@@ -1884,7 +1884,6 @@ class TestProxyInfo(unittest.TestCase):
 
 
 class HttpShimProxyPoolTest(unittest.TestCase):
-    """Test shim pool creatinou for various proxy settings"""
 
     def test_none(self):
         http = httplib2.Http(proxy_info=None)
