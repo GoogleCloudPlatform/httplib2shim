@@ -31,7 +31,7 @@ long_description = open('README.rst', 'r', encoding='utf-8').read()
 setup(
     name='httplib2shim',
 
-    version='0.0.2',
+    version='0.0.3',
 
     description='A wrapper over urllib3 that matches httplib2\'s interface',
     long_description=long_description,
