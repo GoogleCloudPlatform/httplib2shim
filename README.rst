@@ -17,7 +17,7 @@ It's recommended to install ``urllib3[secure]`` before installing ``httplib2shim
 
     pip install urllib3[secure] httplib2shim
 
-Usage is straightforward. You can substitute ``httplib2shim.Http`` anywhere ``httplib2.Http`` is used:
+Usage is straightforward. You can substitute ``httplib2shim.Http`` anywhere ``httplib2.Http`` is used. E.g. for the `oauth2client <https://github.com/google/oauth2client>`_ use:
 
 .. code:: python
 
@@ -32,6 +32,17 @@ Usage is straightforward. You can substitute ``httplib2shim.Http`` anywhere ``ht
     # http is now authorized with OAuth2 credentials and uses urllib3 under
     # the covers.
 
+and for the `google-auth <https://github.com/GoogleCloudPlatform/google-auth-library-python>`_ use:
+
+.. code:: python
+
+    import httplib2shim
+    import google.auth
+    import google_auth_httplib2
+
+    credentials, _ = google.auth.default()
+    http = httplib2shim.Http()
+    http = google_auth_httplib2.AuthorizedHttp(credentials, http=http)
 
 Alternatively, if you do not control the construction of the ``Http`` object, you can use ``httplib2shim.patch()`` to monkey-patch the ``httplib2.Http`` class to point to ``httplib2shim.Http()``:
 
