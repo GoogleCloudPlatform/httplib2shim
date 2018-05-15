@@ -131,8 +131,13 @@ class Http(httplib2.Http):
         if _is_ipv6(host):
             host = '[{}]'.format(host)
 
-        full_uri = '{}://{}:{}{}'.format(
-            scheme, host, conn.port, request_uri)
+        full_uri = ''
+        if conn.port is None:
+            full_uri = '{}://{}{}'.format(
+                scheme, host, request_uri)
+        else:
+            full_uri = '{}://{}:{}{}'.format(
+                scheme, host, conn.port, request_uri)
 
         decode = True if method != 'HEAD' else False
 
