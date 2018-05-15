@@ -120,7 +120,8 @@ class Http(httplib2.Http):
 
     def _conn_request(self, conn, request_uri, method, body, headers):
         # Reconstruct the full uri from the connection object.
-        if isinstance(conn, httplib2.HTTPSConnectionWithTimeout):
+        if isinstance(conn, httplib2.HTTPSConnectionWithTimeout) or
+                isinstance(conn, httplib2.AppEngineHttpsConnection):
             scheme = 'https'
         else:
             scheme = 'http'
