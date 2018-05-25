@@ -1471,6 +1471,7 @@ class HttpTest(unittest.TestCase):
     #     pickled_http = pickle.dumps(self.http)
     #     self.assertFalse(b"S'request'" in pickled_http)
 
+
 try:
     import memcache
 
@@ -1487,7 +1488,7 @@ try:
             # was previously cached. (Maybe the flush is handled async?)
             time.sleep(1)
             self.http.clear_credentials()
-except:
+except BaseException:
     pass
 
 
@@ -1512,7 +1513,7 @@ class HttpPrivateTest(unittest.TestCase):
                 {'cache-control':
                     'Max-age=3600;post-check=1800,pre-check=3600'})
             self.assertTrue("max-age" in cc)
-        except:
+        except BaseException:
             self.fail("Should not throw exception")
 
     def testNormalizeHeaders(self):
