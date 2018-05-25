@@ -25,6 +25,7 @@ This is the httplib2 test suite. It has been adapted to use the shim and to
 run on both python 2 and python 3.
 """
 
+import httplib
 import io
 import os
 import pickle
@@ -107,6 +108,160 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(
             ('http', 'example.com', '/path', 'a=1&b=2', 'fred'),
             httplib2.parse_uri("http://example.com/path?a=1&b=2#fred"))
+
+
+class CreateFullUriTest(unittest.TestCase):
+    def testHttpWithPort(self):
+        self.assertEqual(
+            "http://example.com:8080/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib.HTTPConnection(
+                    host="example.com", port=8080),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "http://example.com:8080/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPConnectionWithTimeout(
+                    host="example.com", port=8080),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "http://example.com:8080/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.AppEngineHttpConnection(
+                    host="example.com", port=8080),
+                request_uri="/mypath"))
+
+    def testHttpWithoutPort(self):
+        self.assertEqual(
+            "http://example.com:80/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib.HTTPConnection(
+                    host="example.com"),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "http://example.com:80/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPConnectionWithTimeout(
+                    host="example.com"),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "http://example.com:80/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.AppEngineHttpConnection(
+                    host="example.com"),
+                request_uri="/mypath"))
+
+    def testHttpWithNonePort(self):
+        conn = httplib.HTTPConnection(host="example.com")
+        conn.port = None
+        self.assertEqual(
+            "http://example.com/mypath",
+            httplib2.Http._create_full_uri(
+                conn=conn,
+                request_uri="/mypath"))
+        conn = httplib2.HTTPConnectionWithTimeout(host="example.com")
+        conn.port = None
+        self.assertEqual(
+            "http://example.com/mypath",
+            httplib2.Http._create_full_uri(
+                conn=conn,
+                request_uri="/mypath"))
+        conn = httplib2.AppEngineHttpConnection(host="example.com")
+        conn.port = None
+        self.assertEqual(
+            "http://example.com/mypath",
+            httplib2.Http._create_full_uri(
+                conn=conn,
+                request_uri="/mypath"))
+
+    def testHttpsWithPort(self):
+        self.assertEqual(
+            "https://example.com:8443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib.HTTPSConnection(
+                    host="example.com", port=8443),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "https://example.com:8443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPSConnectionWithTimeout(
+                    host="example.com", port=8443),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "https://example.com:8443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.AppEngineHttpsConnection(
+                    host="example.com", port=8443),
+                request_uri="/mypath"))
+
+    def testHttpsWithoutPort(self):
+        self.assertEqual(
+            "https://example.com:443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib.HTTPSConnection(
+                    host="example.com"),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "https://example.com:443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPSConnectionWithTimeout(
+                    host="example.com"),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "https://example.com:443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.AppEngineHttpsConnection(
+                    host="example.com"),
+                request_uri="/mypath"))
+
+    def testHttpsWithNonePort(self):
+        conn = httplib.HTTPSConnection(host="example.com")
+        conn.port = None
+        self.assertEqual(
+            "https://example.com/mypath",
+            httplib2.Http._create_full_uri(
+                conn=conn,
+                request_uri="/mypath"))
+        conn = httplib2.HTTPSConnectionWithTimeout(host="example.com")
+        conn.port = None
+        self.assertEqual(
+            "https://example.com/mypath",
+            httplib2.Http._create_full_uri(
+                conn=conn,
+                request_uri="/mypath"))
+        conn = httplib2.AppEngineHttpsConnection(host="example.com")
+        conn.port = None
+        self.assertEqual(
+            "https://example.com/mypath",
+            httplib2.Http._create_full_uri(
+                conn=conn,
+                request_uri="/mypath"))
+
+    def testIpv6Host(self):
+        self.assertEqual(
+            "http://[::1]:80/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPConnectionWithTimeout(
+                    host="[::1]"),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "http://[::1]:8080/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPConnectionWithTimeout(
+                    host="[::1]", port=8080),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "https://[::1]:443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPSConnectionWithTimeout(
+                    host="[::1]"),
+                request_uri="/mypath"))
+        self.assertEqual(
+            "https://[::1]:8443/mypath",
+            httplib2.Http._create_full_uri(
+                conn=httplib2.HTTPSConnectionWithTimeout(
+                    host="[::1]", port=8443),
+                request_uri="/mypath"))
 
 
 class UrlNormTest(unittest.TestCase):
@@ -1315,7 +1470,6 @@ class HttpTest(unittest.TestCase):
     #     self.http.request = dummy_request
     #     pickled_http = pickle.dumps(self.http)
     #     self.assertFalse(b"S'request'" in pickled_http)
-
 
 try:
     import memcache

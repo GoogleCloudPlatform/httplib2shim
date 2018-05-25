@@ -22,6 +22,7 @@
 
 import collections
 import errno
+import httplib
 import socket
 import ssl
 import warnings
@@ -118,10 +119,10 @@ class Http(httplib2.Http):
 
         self.pool = pool
 
-    def _conn_request(self, conn, request_uri, method, body, headers):
+    @classmethod
+    def _create_full_uri(cls, conn, request_uri):
         # Reconstruct the full uri from the connection object.
-        if isinstance(conn, httplib2.HTTPSConnectionWithTimeout) or
-                isinstance(conn, httplib2.AppEngineHttpsConnection):
+        if isinstance(conn, httplib.HTTPSConnection):
             scheme = 'https'
         else:
             scheme = 'http'
@@ -132,13 +133,14 @@ class Http(httplib2.Http):
         if _is_ipv6(host):
             host = '[{}]'.format(host)
 
-        full_uri = ''
-        if conn.port is None:
-            full_uri = '{}://{}{}'.format(
-                scheme, host, request_uri)
-        else:
-            full_uri = '{}://{}:{}{}'.format(
-                scheme, host, conn.port, request_uri)
+        port = ''
+        if conn.port is not None:
+            port = ':{}'.format(conn.port)
+
+        return '{}://{}{}{}'.format(scheme, host, port, request_uri)
+
+    def _conn_request(self, conn, request_uri, method, body, headers):
+        full_uri = self._create_full_uri(conn, request_uri)
 
         decode = True if method != 'HEAD' else False
 
