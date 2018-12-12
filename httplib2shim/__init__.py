@@ -28,8 +28,8 @@ import warnings
 
 import certifi
 import httplib2
-import urllib3
 import six.moves.http_client
+import urllib3
 
 def _default_make_pool(http, proxy_info):
     """Creates a urllib3.PoolManager object that has SSL verification enabled
