@@ -25,7 +25,6 @@ This is the httplib2 test suite. It has been adapted to use the shim and to
 run on both python 2 and python 3.
 """
 
-import httplib
 import io
 import os
 import pickle
@@ -39,6 +38,7 @@ import unittest
 import httplib2
 import httplib2shim
 import six
+import six.moves.http_client
 from six.moves.urllib import parse as urllib_parse
 import urllib3
 
@@ -115,7 +115,7 @@ class CreateFullUriTest(unittest.TestCase):
         self.assertEqual(
             "http://example.com:8080/mypath",
             httplib2.Http._create_full_uri(
-                conn=httplib.HTTPConnection(
+                conn=six.moves.http_client.HTTPConnection(
                     host="example.com", port=8080),
                 request_uri="/mypath"))
         self.assertEqual(
@@ -135,7 +135,7 @@ class CreateFullUriTest(unittest.TestCase):
         self.assertEqual(
             "http://example.com:80/mypath",
             httplib2.Http._create_full_uri(
-                conn=httplib.HTTPConnection(
+                conn=six.moves.http_client.HTTPConnection(
                     host="example.com"),
                 request_uri="/mypath"))
         self.assertEqual(
@@ -152,7 +152,7 @@ class CreateFullUriTest(unittest.TestCase):
                 request_uri="/mypath"))
 
     def testHttpWithNonePort(self):
-        conn = httplib.HTTPConnection(host="example.com")
+        conn = six.moves.http_client.HTTPConnection(host="example.com")
         conn.port = None
         self.assertEqual(
             "http://example.com/mypath",
@@ -178,7 +178,7 @@ class CreateFullUriTest(unittest.TestCase):
         self.assertEqual(
             "https://example.com:8443/mypath",
             httplib2.Http._create_full_uri(
-                conn=httplib.HTTPSConnection(
+                conn=six.moves.http_client.HTTPSConnection(
                     host="example.com", port=8443),
                 request_uri="/mypath"))
         self.assertEqual(
@@ -198,7 +198,7 @@ class CreateFullUriTest(unittest.TestCase):
         self.assertEqual(
             "https://example.com:443/mypath",
             httplib2.Http._create_full_uri(
-                conn=httplib.HTTPSConnection(
+                conn=six.moves.http_client.HTTPSConnection(
                     host="example.com"),
                 request_uri="/mypath"))
         self.assertEqual(
@@ -215,7 +215,7 @@ class CreateFullUriTest(unittest.TestCase):
                 request_uri="/mypath"))
 
     def testHttpsWithNonePort(self):
-        conn = httplib.HTTPSConnection(host="example.com")
+        conn = six.moves.http_client.HTTPSConnection(host="example.com")
         conn.port = None
         self.assertEqual(
             "https://example.com/mypath",

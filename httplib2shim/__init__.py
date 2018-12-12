@@ -22,7 +22,6 @@
 
 import collections
 import errno
-import httplib
 import socket
 import ssl
 import warnings
@@ -30,7 +29,7 @@ import warnings
 import certifi
 import httplib2
 import urllib3
-
+import six.moves.http_client
 
 def _default_make_pool(http, proxy_info):
     """Creates a urllib3.PoolManager object that has SSL verification enabled
@@ -122,7 +121,7 @@ class Http(httplib2.Http):
     @classmethod
     def _create_full_uri(cls, conn, request_uri):
         # Reconstruct the full uri from the connection object.
-        if isinstance(conn, httplib.HTTPSConnection):
+        if isinstance(conn, six.moves.http_client.HTTPSConnection):
             scheme = 'https'
         else:
             scheme = 'http'
