@@ -31,6 +31,11 @@ import certifi
 import httplib2
 import urllib3
 
+try:
+    collections_Callable = collections.Callable
+except AttributeError:
+    collections_Callable = collections.abc.Callable
+
 
 def _default_make_pool(http, proxy_info):
     """Creates a urllib3.PoolManager object that has SSL verification enabled
@@ -43,7 +48,7 @@ def _default_make_pool(http, proxy_info):
 
     cert_reqs = 'CERT_REQUIRED' if http.ca_certs and not ssl_disabled else None
 
-    if isinstance(proxy_info, collections.Callable):
+    if isinstance(proxy_info, collections_Callable):
         proxy_info = proxy_info()
     if proxy_info:
         if proxy_info.proxy_user and proxy_info.proxy_pass:
