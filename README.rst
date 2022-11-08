@@ -1,4 +1,4 @@
-This repo will be archived on November 1, 2022 as it is not actively maintained. 
+This repo was archived on November 8, 2022. 
 
 httplib2shim
 ============
